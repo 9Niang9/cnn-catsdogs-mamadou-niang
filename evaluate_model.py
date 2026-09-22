@@ -44,21 +44,22 @@ def evaluate_model(checkpoint_path, data_dir, model_type='scratch'):
     probs = torch.cat(all_probs)
     labels = torch.cat(all_labels)
     metrics = compute_metrics(probs, labels)
+    print('Métriques :')
     print(metrics)
 
-    # confusion matrix
+    # matrice de confusion
     preds = (probs >= 0.5).int()
     cm = torch.zeros(2, 2, dtype=torch.int64)
     for t, p in zip(labels, preds):
         cm[t.long(), p.long()] += 1
-    print('Confusion matrix:\n', cm.numpy())
+    print('Matrice de confusion :\n', cm.numpy())
 
     plt.imshow(cm.numpy(), cmap='Blues')
-    plt.xticks([0, 1], ['cat', 'dog'])
-    plt.yticks([0, 1], ['cat', 'dog'])
-    plt.title('Confusion matrix')
-    plt.xlabel('Predicted label')
-    plt.ylabel('True label')
+    plt.xticks([0, 1], ['chat', 'chien'])
+    plt.yticks([0, 1], ['chat', 'chien'])
+    plt.title('Matrice de confusion')
+    plt.xlabel('Classe prédite')
+    plt.ylabel('Classe réelle')
     for i in range(2):
         for j in range(2):
             plt.text(j, i, int(cm[i, j]), ha='center', va='center', color='black')
@@ -70,7 +71,7 @@ def evaluate_model(checkpoint_path, data_dir, model_type='scratch'):
 
 
 def main():
-    parser = argparse.ArgumentParser(description='Evaluate a saved Cats vs Dogs model checkpoint.')
+    parser = argparse.ArgumentParser(description='Évaluer un checkpoint sauvegardé d’un modèle Cats vs Dogs.')
     parser.add_argument('--checkpoint', required=True, type=str)
     parser.add_argument('--data_dir', required=True, type=str)
     parser.add_argument('--model_type', type=str, default='scratch', choices=['scratch', 'transfer'])

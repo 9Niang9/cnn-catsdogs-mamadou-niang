@@ -51,7 +51,7 @@ def build_optimizer(model, optimizer_name, learning_rate, weight_decay):
         return Adam(model.parameters(), lr=learning_rate, weight_decay=weight_decay)
     if optimizer_name.lower() == 'sgd':
         return SGD(model.parameters(), lr=learning_rate, momentum=0.9, weight_decay=weight_decay)
-    raise ValueError(f'Unsupported optimizer: {optimizer_name}')
+    raise ValueError(f'Optimiseur non pris en charge : {optimizer_name}')
 
 
 def train_once(model, loader, optimizer, criterion, device):
@@ -100,7 +100,7 @@ def save_history(history, path):
 
 
 def main():
-    parser = argparse.ArgumentParser(description='Train a CNN from scratch on the Cats vs Dogs dataset.')
+    parser = argparse.ArgumentParser(description='Entraîner un CNN from scratch sur le dataset Cats vs Dogs.')
     parser.add_argument('--data_dir', required=True, type=str)
     parser.add_argument('--epochs', type=int, default=12)
     parser.add_argument('--batch_size', type=int, default=32)
@@ -149,7 +149,7 @@ def main():
             'val_recall': val_metrics['recall'],
         }
         history.append(entry)
-        print(f"Epoch {epoch:02d} | train_loss={train_loss:.4f} | val_loss={val_loss:.4f} | val_acc={val_metrics['accuracy']:.4f} | val_precision={val_metrics['precision']:.4f} | val_recall={val_metrics['recall']:.4f}")
+        print(f"Époque {epoch:02d} | perte_train={train_loss:.4f} | perte_val={val_loss:.4f} | acc_val={val_metrics['accuracy']:.4f} | precision_val={val_metrics['precision']:.4f} | rappel_val={val_metrics['recall']:.4f}")
         if val_metrics['accuracy'] > best_val_acc:
             best_val_acc = val_metrics['accuracy']
             best_state = {
@@ -176,12 +176,12 @@ def main():
     plt.xlabel('Epoch')
     plt.ylabel('Loss')
     plt.legend()
-    plt.title('From-scratch CNN training')
+    plt.title('Entraînement CNN from scratch')
     plt.subplot(1, 2, 2)
-    plt.plot(epochs, [h['val_accuracy'] for h in history], label='Val accuracy')
-    plt.plot(epochs, [h['val_precision'] for h in history], label='Val precision')
-    plt.plot(epochs, [h['val_recall'] for h in history], label='Val recall')
-    plt.xlabel('Epoch')
+    plt.plot(epochs, [h['val_accuracy'] for h in history], label='Précision validation')
+    plt.plot(epochs, [h['val_precision'] for h in history], label='Précision validation')
+    plt.plot(epochs, [h['val_recall'] for h in history], label='Rappel validation')
+    plt.xlabel('Époque')
     plt.ylabel('Score')
     plt.legend()
     plt.tight_layout()
@@ -189,8 +189,8 @@ def main():
     plot_dir.mkdir(exist_ok=True)
     plt.savefig(plot_dir / 'from_scratch_metrics.png', dpi=150)
     plt.close()
-    print(f'Model saved to {Path(args.checkpoint_dir) / "from_scratch_best.pth"}')
-    print(f'Plots saved to {plot_dir / "from_scratch_metrics.png"}')
+    print(f'Modèle enregistré dans : {Path(args.checkpoint_dir) / "from_scratch_best.pth"}')
+    print(f'Graphiques enregistrés dans : {plot_dir / "from_scratch_metrics.png"}')
 
 
 if __name__ == '__main__':

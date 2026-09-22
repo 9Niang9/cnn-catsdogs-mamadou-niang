@@ -65,7 +65,7 @@ def split_dataset(dataset, val_ratio: float = 0.2, limit: int | None = None):
     val_size = max(1, int(round(total * val_ratio)))
     train_size = total - val_size
     if train_size <= 0 or val_size <= 0:
-        raise ValueError('The dataset is too small for a proper train/validation split.')
+        raise ValueError('Le jeu de données est trop petit pour une vraie séparation train/validation.')
 
     indices = list(range(total))
     random.Random(42).shuffle(indices)
