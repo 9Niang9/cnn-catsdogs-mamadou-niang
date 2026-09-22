@@ -29,8 +29,8 @@ def ensure_dataset(data_dir: str, min_classes: int = 2) -> None:
     classes = sorted([p.name for p in root.iterdir() if p.is_dir()])
     if len(classes) < min_classes:
         raise ValueError(
-            f"Expected at least {min_classes} class folders under {root}, but found {classes}. "
-            "Download the Kaggle Cats vs Dogs dataset and keep the structure train/cat and train/dog."
+            f"On s'attendait à au moins {min_classes} dossiers de classes sous {root}, mais on a trouvé {classes}."
+            "Télécharge le jeu de données Kaggle Cats vs Dogs et garde la structure train/cat et train/dog."
         )
 
 
