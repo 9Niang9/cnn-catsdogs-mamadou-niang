@@ -12,6 +12,8 @@ from torchvision.models import resnet18
 
 from utils import compute_metrics, get_device, make_loaders, save_checkpoint, set_seed, to_json
 
+ROOT = Path(__file__).resolve().parent
+
 
 class SmallCNN(nn.Module):
     def __init__(self, dropout: float = 0.35):
@@ -114,6 +116,11 @@ def main():
     parser.add_argument('--scheduler', type=str, default='none', choices=['none', 'step', 'cosine'])
     parser.add_argument('--checkpoint_dir', type=str, default='checkpoints')
     args = parser.parse_args()
+    checkpoint_dir = Path(args.checkpoint_dir)
+    if not checkpoint_dir.is_absolute():
+        checkpoint_dir = ROOT / checkpoint_dir
+    checkpoint_dir.mkdir(parents=True, exist_ok=True)
+
     set_seed(args.seed)
     device = get_device()
     train_loader, val_loader, classes = make_loaders(args.data_dir, batch_size=args.batch_size, val_ratio=args.val_ratio, augment=True, limit=args.limit)
@@ -165,8 +172,8 @@ def main():
             }
 
     if best_state is not None:
-        save_checkpoint(Path(args.checkpoint_dir) / 'from_scratch_best.pth', model, optimizer, best_state['epoch'], best_val_acc, history, best_state['config'])
-    save_history(history, Path(args.checkpoint_dir) / 'from_scratch_history.json')
+        save_checkpoint(checkpoint_dir / 'from_scratch_best.pth', model, optimizer, best_state['epoch'], best_val_acc, history, best_state['config'])
+    save_history(history, checkpoint_dir / 'from_scratch_history.json')
 
     plt.figure(figsize=(12, 6))
     epochs = list(range(1, len(history) + 1))
@@ -185,11 +192,11 @@ def main():
     plt.ylabel('Score')
     plt.legend()
     plt.tight_layout()
-    plot_dir = Path('plots')
-    plot_dir.mkdir(exist_ok=True)
+    plot_dir = ROOT / 'plots'
+    plot_dir.mkdir(parents=True, exist_ok=True)
     plt.savefig(plot_dir / 'from_scratch_metrics.png', dpi=150)
     plt.close()
-    print(f'Modèle enregistré dans : {Path(args.checkpoint_dir) / "from_scratch_best.pth"}')
+    print(f'Modèle enregistré dans : {checkpoint_dir / "from_scratch_best.pth"}')
     print(f'Graphiques enregistrés dans : {plot_dir / "from_scratch_metrics.png"}')
 
 

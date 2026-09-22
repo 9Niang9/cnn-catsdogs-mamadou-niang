@@ -11,6 +11,8 @@ from torchvision.models import resnet18, ResNet18_Weights
 
 from utils import build_transforms, compute_metrics, get_device, set_seed
 
+ROOT = Path(__file__).resolve().parent
+
 
 def load_model_from_checkpoint(checkpoint_path, model_type='scratch'):
     checkpoint = torch.load(checkpoint_path, map_location='cpu')
@@ -64,8 +66,8 @@ def evaluate_model(checkpoint_path, data_dir, model_type='scratch'):
         for j in range(2):
             plt.text(j, i, int(cm[i, j]), ha='center', va='center', color='black')
     plt.tight_layout()
-    out_dir = Path('plots')
-    out_dir.mkdir(exist_ok=True)
+    out_dir = ROOT / 'plots'
+    out_dir.mkdir(parents=True, exist_ok=True)
     plt.savefig(out_dir / 'confusion_matrix.png', dpi=150)
     plt.close()
 

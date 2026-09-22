@@ -12,6 +12,8 @@ from torchvision.models import resnet18, ResNet18_Weights
 
 from utils import compute_metrics, get_device, make_loaders, save_checkpoint, set_seed, to_json
 
+ROOT = Path(__file__).resolve().parent
+
 
 def build_model(freeze_backbone: bool = True):
     model = resnet18(weights=ResNet18_Weights.DEFAULT)
@@ -85,6 +87,11 @@ def main():
     parser.add_argument('--scheduler', type=str, default='none', choices=['none', 'step', 'cosine'])
     parser.add_argument('--checkpoint_dir', type=str, default='checkpoints')
     args = parser.parse_args()
+    checkpoint_dir = Path(args.checkpoint_dir)
+    if not checkpoint_dir.is_absolute():
+        checkpoint_dir = ROOT / checkpoint_dir
+    checkpoint_dir.mkdir(parents=True, exist_ok=True)
+
     set_seed(args.seed)
     device = get_device()
     train_loader, val_loader, classes = make_loaders(args.data_dir, batch_size=args.batch_size, val_ratio=args.val_ratio, augment=True, limit=args.limit)
@@ -121,7 +128,7 @@ def main():
         print(f"Époque {epoch:02d} | perte_train={train_loss:.4f} | perte_val={val_loss:.4f} | acc_val={val_metrics['accuracy']:.4f} | precision_val={val_metrics['precision']:.4f} | rappel_val={val_metrics['recall']:.4f}")
         if val_metrics['accuracy'] > best_val_acc:
             best_val_acc = val_metrics['accuracy']
-            save_checkpoint(Path(args.checkpoint_dir) / 'transfer_learning_best.pth', model, optimizer, epoch, best_val_acc, history, {
+            save_checkpoint(checkpoint_dir / 'transfer_learning_best.pth', model, optimizer, epoch, best_val_acc, history, {
                 'optimizer': args.optimizer,
                 'lr': args.lr,
                 'freeze_backbone': bool(args.freeze_backbone),
@@ -129,7 +136,7 @@ def main():
                 'classes': classes,
             })
 
-    with open(Path(args.checkpoint_dir) / 'transfer_learning_history.json', 'w', encoding='utf-8') as f:
+    with open(checkpoint_dir / 'transfer_learning_history.json', 'w', encoding='utf-8') as f:
         json.dump(history, f, indent=2)
 
     plt.figure(figsize=(12, 6))
@@ -149,11 +156,11 @@ def main():
     plt.ylabel('Score')
     plt.legend()
     plt.tight_layout()
-    plot_dir = Path('plots')
-    plot_dir.mkdir(exist_ok=True)
+    plot_dir = ROOT / 'plots'
+    plot_dir.mkdir(parents=True, exist_ok=True)
     plt.savefig(plot_dir / 'transfer_learning_metrics.png', dpi=150)
     plt.close()
-    print(f'Modèle enregistré dans : {Path(args.checkpoint_dir) / "transfer_learning_best.pth"}')
+    print(f'Modèle enregistré dans : {checkpoint_dir / "transfer_learning_best.pth"}')
     print(f'Graphiques enregistrés dans : {plot_dir / "transfer_learning_metrics.png"}')
 
 
