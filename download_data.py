@@ -60,7 +60,7 @@ def prepare_kaggle_dataset() -> Path:
         ) from exc
 
     print("Téléchargement de l’archive Cats vs Dogs depuis KaggleHub...")
-    path = kagglehub.competition_download("dogs-vs-cats", force=False)
+    path = kagglehub.competition_download("dogs-vs-cats")
     archive_path = Path(path)
 
     if archive_path.is_dir():
